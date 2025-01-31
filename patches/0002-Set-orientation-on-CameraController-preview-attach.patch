@@ -1,0 +1,47 @@
+From 73cba6cd195e83efa1b2416ac6075af80b4e9b7a Mon Sep 17 00:00:00 2001
+From: Tommy Webb <tommy@calyxinstitute.org>
+Date: Fri, 31 Jan 2025 19:24:16 +0100
+Subject: [PATCH] Set orientation on CameraController preview attach
+
+Rather than only updating its state when the orientation changes, fetch
+the current orientation when the CameraController preview is attached.
+
+Change-Id: I775ac94e5ff708aad06496de94ddaa5f1ca8abc5
+---
+ .../main/java/androidx/camera/view/CameraController.java    | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/camera/camera-view/src/main/java/androidx/camera/view/CameraController.java b/camera/camera-view/src/main/java/androidx/camera/view/CameraController.java
+index 7ee8e012601..a001c737bc8 100644
+--- a/camera/camera-view/src/main/java/androidx/camera/view/CameraController.java
++++ b/camera/camera-view/src/main/java/androidx/camera/view/CameraController.java
+@@ -38,6 +38,7 @@ import android.util.Range;
+ import android.util.Rational;
+ import android.util.Size;
+ import android.view.Window;
++import android.view.WindowManager;
+ 
+ import androidx.annotation.FloatRange;
+ import androidx.annotation.IntDef;
+@@ -567,6 +568,7 @@ public abstract class CameraController {
+                 viewPort) != getViewportAspectRatioStrategy(mViewPort);
+         mViewPort = viewPort;
+         startListeningToRotationEvents();
++        updateCurrentTargetRotation(viewPort);
+         if (shouldUpdateAspectRatio) {
+             unbindAllAndRecreate();
+         }
+@@ -590,6 +592,10 @@ public abstract class CameraController {
+         stopListeningToRotationEvents();
+     }
+ 
++    private void updateCurrentTargetRotation(@NonNull ViewPort viewPort) {
++        mDeviceRotationListener.onRotationChanged(viewPort.getRotation());
++    }
++
+     private void startListeningToRotationEvents() {
+         mRotationProvider.addListener(mainThreadExecutor(),
+                 mDeviceRotationListener);
+-- 
+2.48.1
+
